@@ -4742,12 +4742,18 @@ var elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
 	});
+var elm$core$Basics$e = _Basics_e;
+var elm$core$Basics$pi = _Basics_pi;
 var elm$core$Dict$empty = elm$core$Dict$RBEmpty_elm_builtin;
 var author$project$Interpreter$newState = A3(
 	author$project$Interpreter$setScalar,
-	'e',
-	2.718281828459045,
-	{functions: elm$core$Dict$empty, mapFunctions: elm$core$Dict$empty, scalars: elm$core$Dict$empty, vectors: elm$core$Dict$empty});
+	'\\pi',
+	elm$core$Basics$pi,
+	A3(
+		author$project$Interpreter$setScalar,
+		'e',
+		elm$core$Basics$e,
+		{functions: elm$core$Dict$empty, mapFunctions: elm$core$Dict$empty, scalars: elm$core$Dict$empty, vectors: elm$core$Dict$empty}));
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
@@ -5286,6 +5292,12 @@ var author$project$Playground$newCell = F2(
 			result: elm$core$Maybe$Nothing
 		};
 	});
+var elm$core$Basics$round = _Basics_round;
+var author$project$Interpreter$isInteger = function (n) {
+	return _Utils_eq(
+		n,
+		elm$core$Basics$round(n));
+};
 var author$project$Interpreter$setFunction = F4(
 	function (name, param, body, state) {
 		return _Utils_update(
@@ -5468,10 +5480,6 @@ var elm$core$Basics$composeR = F3(
 		return g(
 			f(x));
 	});
-var author$project$Return$map = function (fn) {
-	return author$project$Return$andThen(
-		A2(elm$core$Basics$composeR, fn, author$project$Return$Expression));
-};
 var author$project$Return$mapNum = F2(
 	function (builder, fn) {
 		return A2(
@@ -5498,6 +5506,7 @@ var author$project$Types$Abstraction = F2(
 	function (a, b) {
 		return {$: 'Abstraction', a: a, b: b};
 	});
+var author$project$Types$Addition = {$: 'Addition'};
 var author$project$Types$Assignment = function (a) {
 	return {$: 'Assignment', a: a};
 };
@@ -5532,12 +5541,12 @@ var elm$core$Basics$composeL = F3(
 		return g(
 			f(x));
 	});
+var elm$core$Basics$modBy = _Basics_modBy;
 var elm$core$Basics$negate = function (n) {
 	return -n;
 };
-var elm$core$Basics$neq = _Utils_notEqual;
+var elm$core$Basics$not = _Basics_not;
 var elm$core$Basics$pow = _Basics_pow;
-var elm$core$Basics$round = _Basics_round;
 var elm$core$Basics$sqrt = _Basics_sqrt;
 var elm$core$Debug$todo = _Debug_todo;
 var elm$core$Dict$get = F2(
@@ -5689,6 +5698,27 @@ var elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
+var elm$core$Result$andThen = F2(
+	function (callback, result) {
+		if (result.$ === 'Ok') {
+			var value = result.a;
+			return callback(value);
+		} else {
+			var msg = result.a;
+			return elm$core$Result$Err(msg);
+		}
+	});
+var elm$core$Result$map = F2(
+	function (func, ra) {
+		if (ra.$ === 'Ok') {
+			var a = ra.a;
+			return elm$core$Result$Ok(
+				func(a));
+		} else {
+			var e = ra.a;
+			return elm$core$Result$Err(e);
+		}
+	});
 var elm$core$String$fromFloat = _String_fromNumber;
 var elm$core$Tuple$second = function (_n0) {
 	var y = _n0.b;
@@ -5711,9 +5741,9 @@ var elm_community$list_extra$List$Extra$indexedFoldl = F3(
 			list).b;
 	});
 var author$project$Interpreter$callFunction = F4(
-	function (func, state, args, _n22) {
-		var functionParam = _n22.a;
-		var functionBody = _n22.b;
+	function (func, state, args, _n25) {
+		var functionParam = _n25.a;
+		var functionBody = _n25.b;
 		if (functionParam.$ === 'ScalarIdentifier') {
 			var paramName = functionParam.a;
 			return A3(
@@ -5741,10 +5771,10 @@ var author$project$Interpreter$callFunction = F4(
 		}
 	});
 var author$project$Interpreter$callMapFunction = F4(
-	function (func, state, args, _n19) {
-		var functionParam = _n19.a;
-		var functionIndex = _n19.b;
-		var functionBody = _n19.c;
+	function (func, state, args, _n22) {
+		var functionParam = _n22.a;
+		var functionIndex = _n22.b;
+		var functionBody = _n22.c;
 		return A3(
 			author$project$Return$andThenVector,
 			author$project$Types$SingleArity(func),
@@ -5752,19 +5782,19 @@ var author$project$Interpreter$callMapFunction = F4(
 				return A3(
 					elm_community$list_extra$List$Extra$indexedFoldl,
 					F3(
-						function (i, _n20, acc) {
+						function (i, _n23, acc) {
 							var state_ = A3(
 								author$project$Interpreter$setScalar,
 								functionIndex,
 								i + 1,
 								A3(author$project$Interpreter$setVector, functionParam, items, state));
-							var _n21 = _Utils_Tuple2(
+							var _n24 = _Utils_Tuple2(
 								acc,
 								A2(author$project$Interpreter$eval, state_, functionBody));
-							if ((_n21.a.$ === 'Expression') && (_n21.a.a.$ === 'Vector')) {
-								if (_n21.b.$ === 'Expression') {
-									var items_ = _n21.a.a.a;
-									var e = _n21.b.a;
+							if ((_n24.a.$ === 'Expression') && (_n24.a.a.$ === 'Vector')) {
+								if (_n24.b.$ === 'Expression') {
+									var items_ = _n24.a.a.a;
+									var e = _n24.b.a;
 									return author$project$Return$Expression(
 										author$project$Types$Vector(
 											_Utils_ap(
@@ -5772,12 +5802,12 @@ var author$project$Interpreter$callMapFunction = F4(
 												_List_fromArray(
 													[e]))));
 								} else {
-									var items_ = _n21.a.a.a;
-									var error = _n21.b;
+									var items_ = _n24.a.a.a;
+									var error = _n24.b;
 									return error;
 								}
 							} else {
-								var acc_ = _n21.a;
+								var acc_ = _n24.a;
 								return acc_;
 							}
 						}),
@@ -5793,6 +5823,42 @@ var author$project$Interpreter$eval = function (state) {
 		author$project$Interpreter$runExpression(state),
 		elm$core$Tuple$second);
 };
+var author$project$Interpreter$run = F2(
+	function (state, expressions) {
+		var iterateWithoutError = F2(
+			function (expr, acc) {
+				var lastLineResult = A2(
+					elm$core$Maybe$withDefault,
+					_Utils_Tuple2(state, author$project$Return$Void),
+					elm$core$List$head(acc));
+				var lineResult = A2(author$project$Interpreter$runExpression, lastLineResult.a, expr);
+				var _n21 = lineResult.b;
+				if (_n21.$ === 'Error') {
+					var error = _n21.a;
+					return elm$core$Result$Err(
+						_List_fromArray(
+							[error]));
+				} else {
+					return elm$core$Result$Ok(
+						A2(elm$core$List$cons, lineResult, acc));
+				}
+			});
+		var iterate = F2(
+			function (expr, accummulated) {
+				return A2(
+					elm$core$Result$andThen,
+					iterateWithoutError(expr),
+					accummulated);
+			});
+		return A2(
+			elm$core$Result$map,
+			elm$core$List$reverse,
+			A3(
+				elm$core$List$foldl,
+				iterate,
+				elm$core$Result$Ok(_List_Nil),
+				expressions));
+	});
 var author$project$Interpreter$runDoubleArity = F4(
 	function (state, func, e1, e2) {
 		var numOp = function (operator) {
@@ -5816,7 +5882,7 @@ var author$project$Interpreter$runDoubleArity = F4(
 				return numOp(elm$core$Basics$pow);
 			case 'Frac':
 				return numOp(elm$core$Basics$fdiv);
-			default:
+			case 'Index':
 				var vector = function () {
 					if ((e1.$ === 'Variable') && (e1.a.$ === 'ScalarIdentifier')) {
 						var name = e1.a.a;
@@ -5839,19 +5905,17 @@ var author$project$Interpreter$runDoubleArity = F4(
 								author$project$Types$Index,
 								author$project$Types$Vector(items)),
 							function (index) {
-								if ((!_Utils_eq(
-									index,
-									elm$core$Basics$round(index))) || (index < 1)) {
+								if ((!author$project$Interpreter$isInteger(index)) || (index < 1)) {
 									return author$project$Return$throwError(
 										'Cannot use ' + (elm$core$String$fromFloat(index) + ' as an index, it has to be a positive integer'));
 								} else {
-									var _n17 = elm$core$List$head(
+									var _n19 = elm$core$List$head(
 										A2(
 											elm$core$List$drop,
 											elm$core$Basics$round(index) - 1,
 											items));
-									if (_n17.$ === 'Just') {
-										var item = _n17.a;
+									if (_n19.$ === 'Just') {
+										var item = _n19.a;
 										return author$project$Return$Expression(item);
 									} else {
 										return author$project$Return$throwError(
@@ -5862,6 +5926,35 @@ var author$project$Interpreter$runDoubleArity = F4(
 							A2(author$project$Interpreter$eval, state, e2));
 					},
 					A2(author$project$Interpreter$eval, state, vector));
+			case 'Modulo':
+				return A4(
+					author$project$Return$andThenNum2,
+					author$project$Types$DoubleArity(func),
+					F2(
+						function (a, b) {
+							return (author$project$Interpreter$isInteger(a) && author$project$Interpreter$isInteger(b)) ? author$project$Return$Expression(
+								author$project$Types$Number(
+									A2(
+										elm$core$Basics$modBy,
+										elm$core$Basics$round(b),
+										elm$core$Basics$round(a)))) : author$project$Return$throwError(
+								'Modulo operation can only be performed on integers, you are trying to calculate ' + (elm$core$String$fromFloat(a) + (' \\mod ' + elm$core$String$fromFloat(b))));
+						}),
+					A2(author$project$Interpreter$eval, state, e1),
+					A2(author$project$Interpreter$eval, state, e2));
+			default:
+				return A4(
+					author$project$Return$andThenNum2,
+					author$project$Types$DoubleArity(func),
+					F2(
+						function (a, b) {
+							return (author$project$Interpreter$isInteger(a) && author$project$Interpreter$isInteger(b)) ? author$project$Return$Expression(
+								author$project$Types$Number(
+									elm$core$Basics$floor(a / b))) : author$project$Return$throwError(
+								'Euclidean division can only be performed on integers, you are trying to calculate ' + (elm$core$String$fromFloat(a) + (' \\div ' + elm$core$String$fromFloat(b))));
+						}),
+					A2(author$project$Interpreter$eval, state, e1),
+					A2(author$project$Interpreter$eval, state, e2));
 		}
 	});
 var author$project$Interpreter$runExpression = F2(
@@ -5877,11 +5970,11 @@ var author$project$Interpreter$runExpression = F2(
 				var items = expr.a;
 				var appendOrLiftError = F2(
 					function (curr, acc) {
-						var _n14 = _Utils_Tuple2(acc, curr);
-						if ((_n14.a.$ === 'Expression') && (_n14.a.a.$ === 'Vector')) {
-							if (_n14.b.$ === 'Expression') {
-								var items_ = _n14.a.a.a;
-								var e = _n14.b.a;
+						var _n15 = _Utils_Tuple2(acc, curr);
+						if ((_n15.a.$ === 'Expression') && (_n15.a.a.$ === 'Vector')) {
+							if (_n15.b.$ === 'Expression') {
+								var items_ = _n15.a.a.a;
+								var e = _n15.b.a;
 								return author$project$Return$Expression(
 									author$project$Types$Vector(
 										_Utils_ap(
@@ -5889,7 +5982,7 @@ var author$project$Interpreter$runExpression = F2(
 											_List_fromArray(
 												[e]))));
 							} else {
-								var invalid = _n14.b;
+								var invalid = _n15.b;
 								return invalid;
 							}
 						} else {
@@ -5939,20 +6032,16 @@ var author$project$Interpreter$runExpression = F2(
 				var body = expr.b;
 				return _Utils_Tuple2(
 					state,
-					A2(
-						author$project$Return$map,
-						author$project$Types$Abstraction(param),
-						A2(author$project$Interpreter$eval, state, body)));
+					author$project$Return$Expression(
+						A2(author$project$Types$Abstraction, param, body)));
 			case 'MapAbstraction':
 				var param = expr.a;
 				var index = expr.b;
 				var body = expr.c;
 				return _Utils_Tuple2(
 					state,
-					A2(
-						author$project$Return$map,
-						A2(author$project$Types$MapAbstraction, param, index),
-						A2(author$project$Interpreter$eval, state, body)));
+					author$project$Return$Expression(
+						A3(author$project$Types$MapAbstraction, param, index, body)));
 			case 'SingleArity':
 				var func = expr.a;
 				var e = expr.b;
@@ -5964,7 +6053,7 @@ var author$project$Interpreter$runExpression = F2(
 				return _Utils_Tuple2(
 					state,
 					A4(author$project$Interpreter$runDoubleArity, state, func, e1, e2));
-			default:
+			case 'TripleArity':
 				var func = expr.a;
 				var e1 = expr.b;
 				var e2 = expr.c;
@@ -5972,6 +6061,30 @@ var author$project$Interpreter$runExpression = F2(
 				return _Utils_Tuple2(
 					state,
 					A5(author$project$Interpreter$runTripleArity, state, func, e1, e2, e3));
+			default:
+				var name = expr.a;
+				var blockExpressions = expr.b;
+				var _n17 = A2(author$project$Interpreter$run, state, blockExpressions);
+				if (_n17.$ === 'Err') {
+					var errors = _n17.a;
+					return _Utils_Tuple2(
+						state,
+						A2(
+							elm$core$Maybe$withDefault,
+							author$project$Return$throwError('error in block with no error'),
+							A2(
+								elm$core$Maybe$map,
+								author$project$Return$Error,
+								elm$core$List$head(
+									elm$core$List$reverse(errors)))));
+				} else {
+					var results = _n17.a;
+					return A2(
+						elm$core$Maybe$withDefault,
+						_Utils_Tuple2(state, author$project$Return$Void),
+						elm$core$List$head(
+							elm$core$List$reverse(results)));
+				}
 		}
 	});
 var author$project$Interpreter$runSingleArity = F3(
@@ -5998,7 +6111,8 @@ var author$project$Interpreter$runSingleArity = F3(
 									var num = _n4.a.a;
 									return _Utils_Tuple2(
 										A3(author$project$Interpreter$setScalar, name, num, state),
-										author$project$Return$Void);
+										author$project$Return$Expression(
+											author$project$Types$Number(num)));
 								case 'Vector':
 									return _Utils_Tuple2(
 										state,
@@ -6052,7 +6166,8 @@ var author$project$Interpreter$runSingleArity = F3(
 									var v = _n7.a.a;
 									return _Utils_Tuple2(
 										A3(author$project$Interpreter$setVector, name, v, state),
-										author$project$Return$Void);
+										author$project$Return$Expression(
+											author$project$Types$Vector(v)));
 								default:
 									var e = _n7.a;
 									return _Utils_Tuple2(
@@ -6105,8 +6220,8 @@ var author$project$Interpreter$runSingleArity = F3(
 					return _Debug_todo(
 						'Interpreter',
 						{
-							start: {line: 186, column: 21},
-							end: {line: 186, column: 31}
+							start: {line: 200, column: 21},
+							end: {line: 200, column: 31}
 						})('not implemented');
 				}
 			case 'Sqrt':
@@ -6119,9 +6234,7 @@ var author$project$Interpreter$runSingleArity = F3(
 						A2(author$project$Interpreter$eval, state, expr)));
 			case 'Factorial':
 				var factorial = function (num) {
-					return ((!_Utils_eq(
-						num,
-						elm$core$Basics$round(num))) || (num < 0)) ? author$project$Return$throwError(
+					return ((!author$project$Interpreter$isInteger(num)) || (num < 0)) ? author$project$Return$throwError(
 						'Cannot calculate factorial for ' + (elm$core$String$fromFloat(num) + ', only for positive integers')) : A3(
 						elm$core$Basics$composeL,
 						A2(elm$core$Basics$composeL, author$project$Return$Expression, author$project$Types$Number),
@@ -6142,13 +6255,61 @@ var author$project$Interpreter$runSingleArity = F3(
 						author$project$Types$SingleArity(func),
 						factorial,
 						A2(author$project$Interpreter$eval, state, expr)));
-			default:
+			case 'Negation':
 				return _Utils_Tuple2(
 					state,
 					A3(
 						author$project$Return$mapNum,
 						author$project$Types$SingleArity(func),
 						elm$core$Basics$negate,
+						A2(author$project$Interpreter$eval, state, expr)));
+			case 'Summation':
+				return _Utils_Tuple2(
+					state,
+					A3(
+						author$project$Return$andThenVector,
+						author$project$Types$SingleArity(func),
+						A2(
+							elm$core$Basics$composeR,
+							A2(
+								elm$core$List$foldl,
+								F2(
+									function (curr, acc) {
+										if (acc.$ === 'Expression') {
+											if (acc.a.$ === 'Number') {
+												var n = acc.a.a;
+												return (!n) ? author$project$Return$Expression(curr) : author$project$Return$Expression(
+													A3(
+														author$project$Types$DoubleArity,
+														author$project$Types$Addition,
+														author$project$Types$Number(n),
+														curr));
+											} else {
+												var e = acc.a;
+												return author$project$Return$Expression(
+													A3(author$project$Types$DoubleArity, author$project$Types$Addition, e, curr));
+											}
+										} else {
+											var acc_ = acc;
+											return acc_;
+										}
+									}),
+								author$project$Return$Expression(
+									author$project$Types$Number(0))),
+							author$project$Return$andThen(
+								author$project$Interpreter$eval(state))),
+						A2(author$project$Interpreter$eval, state, expr)));
+			default:
+				return _Utils_Tuple2(
+					state,
+					A3(
+						author$project$Return$andThenVector,
+						author$project$Types$SingleArity(func),
+						function (items) {
+							return author$project$Return$Expression(
+								author$project$Types$Number(
+									elm$core$List$length(items)));
+						},
 						A2(author$project$Interpreter$eval, state, expr)));
 		}
 	});
@@ -6172,12 +6333,8 @@ var author$project$Interpreter$runTripleArity = F5(
 			});
 		var forLoop = F2(
 			function (lowerLimit, upperLimit) {
-				return (!_Utils_eq(
-					lowerLimit,
-					elm$core$Basics$round(lowerLimit))) ? author$project$Return$throwError(
-					'Error on sum_: cannot use ' + (elm$core$String$fromFloat(lowerLimit) + ' as a lower limit, it has to be an integer')) : (((!_Utils_eq(
-					upperLimit,
-					elm$core$Basics$round(upperLimit))) || (_Utils_cmp(upperLimit, lowerLimit) < 0)) ? author$project$Return$throwError(
+				return (!author$project$Interpreter$isInteger(lowerLimit)) ? author$project$Return$throwError(
+					'Error on sum_: cannot use ' + (elm$core$String$fromFloat(lowerLimit) + ' as a lower limit, it has to be an integer')) : (((!author$project$Interpreter$isInteger(upperLimit)) || (_Utils_cmp(upperLimit, lowerLimit) < 0)) ? author$project$Return$throwError(
 					'Error on sum_: cannot use ' + (elm$core$String$fromFloat(upperLimit) + ' as an upper limit, it has to be an integer higher than lower limit')) : A3(
 					elm$core$List$foldl,
 					iterate,
@@ -6197,63 +6354,6 @@ var author$project$Interpreter$runTripleArity = F5(
 			forLoop,
 			A2(author$project$Interpreter$eval, state, expr1),
 			A2(author$project$Interpreter$eval, state, expr2));
-	});
-var elm$core$Result$andThen = F2(
-	function (callback, result) {
-		if (result.$ === 'Ok') {
-			var value = result.a;
-			return callback(value);
-		} else {
-			var msg = result.a;
-			return elm$core$Result$Err(msg);
-		}
-	});
-var elm$core$Result$map = F2(
-	function (func, ra) {
-		if (ra.$ === 'Ok') {
-			var a = ra.a;
-			return elm$core$Result$Ok(
-				func(a));
-		} else {
-			var e = ra.a;
-			return elm$core$Result$Err(e);
-		}
-	});
-var author$project$Interpreter$run = F2(
-	function (state, expressions) {
-		var iterateWithoutError = F2(
-			function (expr, acc) {
-				var lastLineResult = A2(
-					elm$core$Maybe$withDefault,
-					_Utils_Tuple2(state, author$project$Return$Void),
-					elm$core$List$head(acc));
-				var lineResult = A2(author$project$Interpreter$runExpression, lastLineResult.a, expr);
-				var _n0 = lineResult.b;
-				if (_n0.$ === 'Error') {
-					var error = _n0.a;
-					return elm$core$Result$Err(
-						_List_fromArray(
-							[error]));
-				} else {
-					return elm$core$Result$Ok(
-						A2(elm$core$List$cons, lineResult, acc));
-				}
-			});
-		var iterate = F2(
-			function (expr, accummulated) {
-				return A2(
-					elm$core$Result$andThen,
-					iterateWithoutError(expr),
-					accummulated);
-			});
-		return A2(
-			elm$core$Result$map,
-			elm$core$List$reverse,
-			A3(
-				elm$core$List$foldl,
-				iterate,
-				elm$core$Result$Ok(_List_Nil),
-				expressions));
 	});
 var Punie$elm_parser_extras$Parser$Expression$initOps = {lassoc: _List_Nil, nassoc: _List_Nil, postfix: _List_Nil, prefix: _List_Nil, rassoc: _List_Nil};
 var Punie$elm_parser_extras$Parser$Expression$splitOp = F2(
@@ -6729,7 +6829,6 @@ var elm$parser$Parser$Advanced$Token = F2(
 	function (a, b) {
 		return {$: 'Token', a: a, b: b};
 	});
-var elm$core$Basics$not = _Basics_not;
 var elm$core$String$isEmpty = function (string) {
 	return string === '';
 };
@@ -6954,6 +7053,15 @@ var author$project$MathParser$digits = elm$parser$Parser$number(
 			A2(elm$core$Basics$composeR, elm$core$Basics$toFloat, author$project$Types$Number)),
 		octal: elm$core$Maybe$Nothing
 	});
+var author$project$MathParser$lowercaseGreek = A2(
+	elm$core$List$map,
+	elm$parser$Parser$symbol,
+	_List_fromArray(
+		['\\alpha', '\\beta', '\\gamma', '\\delta', '\\epsilon', '\\varepsilon', '\\zeta', '\\eta', '\\theta', '\\vartheta', '\\iota', '\\kappa', '\\lambda', '\\mu', '\\nu', '\\xi', '\\pi', '\\rho', '\\sigma', '\\tau', '\\upsilon', '\\phi', '\\chi', '\\psi', '\\omega']));
+var elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
 var elm$parser$Parser$UnexpectedChar = {$: 'UnexpectedChar'};
 var elm$parser$Parser$Advanced$chompIf = F2(
 	function (isGood, expecting) {
@@ -7006,20 +7114,134 @@ var elm$parser$Parser$Advanced$getChompedString = function (parser) {
 	return A2(elm$parser$Parser$Advanced$mapChompedString, elm$core$Basics$always, parser);
 };
 var elm$parser$Parser$getChompedString = elm$parser$Parser$Advanced$getChompedString;
-var author$project$MathParser$scalarIdentifier = elm$parser$Parser$getChompedString(
-	elm$parser$Parser$oneOf(
-		_List_fromArray(
-			[
-				elm$parser$Parser$symbol('\\sigma'),
-				elm$parser$Parser$symbol('\\lambda'),
-				A2(
-				elm$parser$Parser$ignorer,
-				elm$parser$Parser$succeed(_Utils_Tuple0),
-				elm$parser$Parser$chompIf(
-					function (c) {
-						return elm$core$Char$isLower(c) && elm$core$Char$isAlphaNum(c);
-					}))
-			])));
+var elm$parser$Parser$ExpectingVariable = {$: 'ExpectingVariable'};
+var elm$core$Dict$member = F2(
+	function (key, dict) {
+		var _n0 = A2(elm$core$Dict$get, key, dict);
+		if (_n0.$ === 'Just') {
+			return true;
+		} else {
+			return false;
+		}
+	});
+var elm$core$Set$member = F2(
+	function (key, _n0) {
+		var dict = _n0.a;
+		return A2(elm$core$Dict$member, key, dict);
+	});
+var elm$parser$Parser$Advanced$varHelp = F7(
+	function (isGood, offset, row, col, src, indent, context) {
+		varHelp:
+		while (true) {
+			var newOffset = A3(elm$parser$Parser$Advanced$isSubChar, isGood, offset, src);
+			if (_Utils_eq(newOffset, -1)) {
+				return {col: col, context: context, indent: indent, offset: offset, row: row, src: src};
+			} else {
+				if (_Utils_eq(newOffset, -2)) {
+					var $temp$isGood = isGood,
+						$temp$offset = offset + 1,
+						$temp$row = row + 1,
+						$temp$col = 1,
+						$temp$src = src,
+						$temp$indent = indent,
+						$temp$context = context;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					src = $temp$src;
+					indent = $temp$indent;
+					context = $temp$context;
+					continue varHelp;
+				} else {
+					var $temp$isGood = isGood,
+						$temp$offset = newOffset,
+						$temp$row = row,
+						$temp$col = col + 1,
+						$temp$src = src,
+						$temp$indent = indent,
+						$temp$context = context;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					src = $temp$src;
+					indent = $temp$indent;
+					context = $temp$context;
+					continue varHelp;
+				}
+			}
+		}
+	});
+var elm$parser$Parser$Advanced$variable = function (i) {
+	return elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			var firstOffset = A3(elm$parser$Parser$Advanced$isSubChar, i.start, s.offset, s.src);
+			if (_Utils_eq(firstOffset, -1)) {
+				return A2(
+					elm$parser$Parser$Advanced$Bad,
+					false,
+					A2(elm$parser$Parser$Advanced$fromState, s, i.expecting));
+			} else {
+				var s1 = _Utils_eq(firstOffset, -2) ? A7(elm$parser$Parser$Advanced$varHelp, i.inner, s.offset + 1, s.row + 1, 1, s.src, s.indent, s.context) : A7(elm$parser$Parser$Advanced$varHelp, i.inner, firstOffset, s.row, s.col + 1, s.src, s.indent, s.context);
+				var name = A3(elm$core$String$slice, s.offset, s1.offset, s.src);
+				return A2(elm$core$Set$member, name, i.reserved) ? A2(
+					elm$parser$Parser$Advanced$Bad,
+					false,
+					A2(elm$parser$Parser$Advanced$fromState, s, i.expecting)) : A3(elm$parser$Parser$Advanced$Good, true, name, s1);
+			}
+		});
+};
+var elm$parser$Parser$variable = function (i) {
+	return elm$parser$Parser$Advanced$variable(
+		{expecting: elm$parser$Parser$ExpectingVariable, inner: i.inner, reserved: i.reserved, start: i.start});
+};
+var author$project$MathParser$scalarIdentifier = function () {
+	var names = elm$parser$Parser$oneOf(
+		_Utils_ap(
+			author$project$MathParser$lowercaseGreek,
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$ignorer,
+					elm$parser$Parser$succeed(_Utils_Tuple0),
+					elm$parser$Parser$chompIf(
+						function (c) {
+							return elm$core$Char$isLower(c) && elm$core$Char$isAlphaNum(c);
+						})),
+					A2(
+					elm$parser$Parser$ignorer,
+					A2(
+						elm$parser$Parser$ignorer,
+						elm$parser$Parser$succeed(_Utils_Tuple0),
+						elm$parser$Parser$symbol('\\operatorname')),
+					Punie$elm_parser_extras$Parser$Extras$braces(
+						elm$parser$Parser$variable(
+							{
+								inner: function (c) {
+									return elm$core$Char$isAlphaNum(c);
+								},
+								reserved: elm$core$Set$empty,
+								start: elm$core$Char$isAlphaNum
+							})))
+				])));
+	var decorators = A2(
+		elm$parser$Parser$ignorer,
+		A2(
+			elm$parser$Parser$ignorer,
+			elm$parser$Parser$succeed(_Utils_Tuple0),
+			elm$parser$Parser$oneOf(
+				_List_fromArray(
+					[
+						elm$parser$Parser$symbol('\\tilde'),
+						elm$parser$Parser$symbol('\\bar')
+					]))),
+		Punie$elm_parser_extras$Parser$Extras$braces(names));
+	return elm$parser$Parser$getChompedString(
+		elm$parser$Parser$oneOf(
+			_List_fromArray(
+				[decorators, names])));
+}();
 var author$project$MathParser$vectorIdentifier = A2(
 	elm$parser$Parser$keeper,
 	A2(
@@ -7119,9 +7341,10 @@ var Punie$elm_parser_extras$Parser$Expression$prefixOperator = F2(
 		return Punie$elm_parser_extras$Parser$Expression$Prefix(
 			A2(Punie$elm_parser_extras$Parser$Expression$unaryOp, fn, opParser));
 	});
-var author$project$Types$Addition = {$: 'Addition'};
 var author$project$Types$Division = {$: 'Division'};
+var author$project$Types$EuclideanDivision = {$: 'EuclideanDivision'};
 var author$project$Types$Exponentiation = {$: 'Exponentiation'};
+var author$project$Types$Modulo = {$: 'Modulo'};
 var author$project$Types$Multiplication = {$: 'Multiplication'};
 var author$project$Types$Negation = {$: 'Negation'};
 var author$project$Types$Subtraction = {$: 'Subtraction'};
@@ -7173,6 +7396,19 @@ var author$project$MathParser$operators = function () {
 			[
 				A3(
 				infixOp,
+				author$project$Types$Modulo,
+				symb('\\mod'),
+				Punie$elm_parser_extras$Parser$Expression$AssocLeft),
+				A3(
+				infixOp,
+				author$project$Types$EuclideanDivision,
+				symb('\\div'),
+				Punie$elm_parser_extras$Parser$Expression$AssocLeft)
+			]),
+			_List_fromArray(
+			[
+				A3(
+				infixOp,
 				author$project$Types$Addition,
 				symb('+'),
 				Punie$elm_parser_extras$Parser$Expression$AssocLeft),
@@ -7184,10 +7420,6 @@ var author$project$MathParser$operators = function () {
 			])
 		]);
 }();
-var elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
 var elm$core$Set$insert = F2(
 	function (key, _n0) {
 		var dict = _n0.a;
@@ -7196,88 +7428,6 @@ var elm$core$Set$insert = F2(
 	});
 var elm$core$Set$fromList = function (list) {
 	return A3(elm$core$List$foldl, elm$core$Set$insert, elm$core$Set$empty, list);
-};
-var elm$parser$Parser$ExpectingVariable = {$: 'ExpectingVariable'};
-var elm$core$Dict$member = F2(
-	function (key, dict) {
-		var _n0 = A2(elm$core$Dict$get, key, dict);
-		if (_n0.$ === 'Just') {
-			return true;
-		} else {
-			return false;
-		}
-	});
-var elm$core$Set$member = F2(
-	function (key, _n0) {
-		var dict = _n0.a;
-		return A2(elm$core$Dict$member, key, dict);
-	});
-var elm$parser$Parser$Advanced$varHelp = F7(
-	function (isGood, offset, row, col, src, indent, context) {
-		varHelp:
-		while (true) {
-			var newOffset = A3(elm$parser$Parser$Advanced$isSubChar, isGood, offset, src);
-			if (_Utils_eq(newOffset, -1)) {
-				return {col: col, context: context, indent: indent, offset: offset, row: row, src: src};
-			} else {
-				if (_Utils_eq(newOffset, -2)) {
-					var $temp$isGood = isGood,
-						$temp$offset = offset + 1,
-						$temp$row = row + 1,
-						$temp$col = 1,
-						$temp$src = src,
-						$temp$indent = indent,
-						$temp$context = context;
-					isGood = $temp$isGood;
-					offset = $temp$offset;
-					row = $temp$row;
-					col = $temp$col;
-					src = $temp$src;
-					indent = $temp$indent;
-					context = $temp$context;
-					continue varHelp;
-				} else {
-					var $temp$isGood = isGood,
-						$temp$offset = newOffset,
-						$temp$row = row,
-						$temp$col = col + 1,
-						$temp$src = src,
-						$temp$indent = indent,
-						$temp$context = context;
-					isGood = $temp$isGood;
-					offset = $temp$offset;
-					row = $temp$row;
-					col = $temp$col;
-					src = $temp$src;
-					indent = $temp$indent;
-					context = $temp$context;
-					continue varHelp;
-				}
-			}
-		}
-	});
-var elm$parser$Parser$Advanced$variable = function (i) {
-	return elm$parser$Parser$Advanced$Parser(
-		function (s) {
-			var firstOffset = A3(elm$parser$Parser$Advanced$isSubChar, i.start, s.offset, s.src);
-			if (_Utils_eq(firstOffset, -1)) {
-				return A2(
-					elm$parser$Parser$Advanced$Bad,
-					false,
-					A2(elm$parser$Parser$Advanced$fromState, s, i.expecting));
-			} else {
-				var s1 = _Utils_eq(firstOffset, -2) ? A7(elm$parser$Parser$Advanced$varHelp, i.inner, s.offset + 1, s.row + 1, 1, s.src, s.indent, s.context) : A7(elm$parser$Parser$Advanced$varHelp, i.inner, firstOffset, s.row, s.col + 1, s.src, s.indent, s.context);
-				var name = A3(elm$core$String$slice, s.offset, s1.offset, s.src);
-				return A2(elm$core$Set$member, name, i.reserved) ? A2(
-					elm$parser$Parser$Advanced$Bad,
-					false,
-					A2(elm$parser$Parser$Advanced$fromState, s, i.expecting)) : A3(elm$parser$Parser$Advanced$Good, true, name, s1);
-			}
-		});
-};
-var elm$parser$Parser$variable = function (i) {
-	return elm$parser$Parser$Advanced$variable(
-		{expecting: elm$parser$Parser$ExpectingVariable, inner: i.inner, reserved: i.reserved, start: i.start});
 };
 var author$project$MathParser$symbolIdentifier = elm$parser$Parser$variable(
 	{
@@ -7292,6 +7442,7 @@ var author$project$MathParser$symbolIdentifier = elm$parser$Parser$variable(
 var author$project$Types$Application = function (a) {
 	return {$: 'Application', a: a};
 };
+var author$project$Types$Cardinality = {$: 'Cardinality'};
 var author$project$Types$Sum_ = function (a) {
 	return {$: 'Sum_', a: a};
 };
@@ -7314,10 +7465,12 @@ var author$project$Types$doubleAritySymbolsMap = elm$core$Dict$fromList(
 			_Utils_Tuple2('frac', author$project$Types$Frac)
 		]));
 var author$project$Types$Sqrt = {$: 'Sqrt'};
+var author$project$Types$Summation = {$: 'Summation'};
 var author$project$Types$singleAritySymbolsMap = elm$core$Dict$fromList(
 	_List_fromArray(
 		[
-			_Utils_Tuple2('sqrt', author$project$Types$Sqrt)
+			_Utils_Tuple2('sqrt', author$project$Types$Sqrt),
+			_Utils_Tuple2('sum', author$project$Types$Summation)
 		]));
 var author$project$Types$tripleAritySymbolsMap = elm$core$Dict$fromList(
 	_List_fromArray(
@@ -7620,7 +7773,8 @@ var author$project$MathParser$expressionParsers = function (withDeclarations) {
 			author$project$MathParser$cyclic$functionCall(),
 			author$project$MathParser$atoms,
 			author$project$MathParser$cyclic$vectors(),
-			author$project$MathParser$cyclic$symbolicFunction()
+			author$project$MathParser$cyclic$symbolicFunction(),
+			author$project$MathParser$cyclic$cardinality()
 		]);
 	var declarations = _List_fromArray(
 		[
@@ -7686,6 +7840,21 @@ function author$project$MathParser$cyclic$assignment() {
 					elm$parser$Parser$symbol('=')),
 				elm$parser$Parser$spaces)),
 		author$project$MathParser$cyclic$expression());
+}
+function author$project$MathParser$cyclic$cardinality() {
+	return A2(
+		elm$parser$Parser$keeper,
+		A2(
+			elm$parser$Parser$ignorer,
+			elm$parser$Parser$succeed(
+				author$project$Types$SingleArity(author$project$Types$Cardinality)),
+			elm$parser$Parser$backtrackable(
+				elm$parser$Parser$symbol('|'))),
+		A2(
+			elm$parser$Parser$ignorer,
+			elm$parser$Parser$backtrackable(
+				author$project$MathParser$cyclic$expression()),
+			elm$parser$Parser$symbol('|')));
 }
 function author$project$MathParser$cyclic$vectors() {
 	return A2(
@@ -7880,6 +8049,10 @@ try {
 	author$project$MathParser$cyclic$assignment = function () {
 		return author$project$MathParser$assignment;
 	};
+	var author$project$MathParser$cardinality = author$project$MathParser$cyclic$cardinality();
+	author$project$MathParser$cyclic$cardinality = function () {
+		return author$project$MathParser$cardinality;
+	};
 	var author$project$MathParser$vectors = author$project$MathParser$cyclic$vectors();
 	author$project$MathParser$cyclic$vectors = function () {
 		return author$project$MathParser$vectors;
@@ -7905,7 +8078,12 @@ try {
 		return author$project$MathParser$symbolicFunction;
 	};
 } catch ($) {
-throw 'Some top-level definitions from `MathParser` are causing infinite recursion:\n\n  ┌─────┐\n  │    assignment\n  │     ↓\n  │    exponentiation\n  │     ↓\n  │    vectors\n  │     ↓\n  │    mapFunctionDeclaration\n  │     ↓\n  │    functionDeclaration\n  │     ↓\n  │    functionCall\n  │     ↓\n  │    expression\n  │     ↓\n  │    expressionParsers\n  │     ↓\n  │    expression_\n  │     ↓\n  │    index\n  │     ↓\n  │    symbolicFunction\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.0/halting-problem to learn how to fix it!';}
+throw 'Some top-level definitions from `MathParser` are causing infinite recursion:\n\n  ┌─────┐\n  │    assignment\n  │     ↓\n  │    cardinality\n  │     ↓\n  │    exponentiation\n  │     ↓\n  │    vectors\n  │     ↓\n  │    mapFunctionDeclaration\n  │     ↓\n  │    functionDeclaration\n  │     ↓\n  │    functionCall\n  │     ↓\n  │    expression\n  │     ↓\n  │    expressionParsers\n  │     ↓\n  │    expression_\n  │     ↓\n  │    index\n  │     ↓\n  │    symbolicFunction\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.0/halting-problem to learn how to fix it!';}
+var author$project$Types$Block = F2(
+	function (a, b) {
+		return {$: 'Block', a: a, b: b};
+	});
+var elm$core$Basics$neq = _Utils_notEqual;
 var elm$parser$Parser$Done = function (a) {
 	return {$: 'Done', a: a};
 };
@@ -7913,6 +8091,93 @@ var elm$parser$Parser$Loop = function (a) {
 	return {$: 'Loop', a: a};
 };
 var elm$parser$Parser$chompWhile = elm$parser$Parser$Advanced$chompWhile;
+var author$project$MathParser$programLoop = function (expressions) {
+	var statementBreak = A2(
+		elm$parser$Parser$ignorer,
+		A2(
+			elm$parser$Parser$ignorer,
+			A2(
+				elm$parser$Parser$ignorer,
+				elm$parser$Parser$succeed(_Utils_Tuple0),
+				elm$parser$Parser$chompWhile(
+					function (c) {
+						return _Utils_eq(
+							c,
+							_Utils_chr(' '));
+					})),
+			elm$parser$Parser$chompIf(
+				function (c) {
+					return _Utils_eq(
+						c,
+						_Utils_chr('\n'));
+				})),
+		elm$parser$Parser$spaces);
+	var appendExpr = function (expr) {
+		var _n0 = elm$core$List$head(expressions);
+		if ((_n0.$ === 'Just') && (_n0.a.$ === 'Block')) {
+			var _n1 = _n0.a;
+			var name = _n1.a;
+			var items = _n1.b;
+			return elm$parser$Parser$Loop(
+				A2(
+					elm$core$List$cons,
+					A2(
+						author$project$Types$Block,
+						name,
+						_Utils_ap(
+							items,
+							_List_fromArray(
+								[expr]))),
+					A2(elm$core$List$drop, 1, expressions)));
+		} else {
+			return elm$parser$Parser$Loop(
+				A2(elm$core$List$cons, expr, expressions));
+		}
+	};
+	return elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				elm$parser$Parser$ignorer,
+				elm$parser$Parser$succeed(
+					elm$parser$Parser$Done(
+						elm$core$List$reverse(expressions))),
+				elm$parser$Parser$symbol('EOF')),
+				A2(
+				elm$parser$Parser$keeper,
+				elm$parser$Parser$succeed(
+					function (name) {
+						return elm$parser$Parser$Loop(
+							A2(
+								elm$core$List$cons,
+								A2(author$project$Types$Block, name, _List_Nil),
+								expressions));
+					}),
+				A2(
+					elm$parser$Parser$ignorer,
+					A2(
+						elm$parser$Parser$ignorer,
+						elm$parser$Parser$backtrackable(
+							elm$parser$Parser$getChompedString(
+								elm$parser$Parser$chompWhile(
+									function (c) {
+										return (!_Utils_eq(
+											c,
+											_Utils_chr(':'))) && (!_Utils_eq(
+											c,
+											_Utils_chr('\n')));
+									}))),
+						elm$parser$Parser$symbol(':')),
+					statementBreak)),
+				A2(
+				elm$parser$Parser$keeper,
+				elm$parser$Parser$succeed(appendExpr),
+				A2(
+					elm$parser$Parser$ignorer,
+					author$project$MathParser$expression_(true),
+					statementBreak))
+			]));
+};
 var elm$parser$Parser$toAdvancedStep = function (step) {
 	if (step.$ === 'Loop') {
 		var s = step.a;
@@ -7934,50 +8199,7 @@ var elm$parser$Parser$loop = F2(
 					callback(s));
 			});
 	});
-var author$project$MathParser$program = A2(
-	elm$parser$Parser$loop,
-	_List_Nil,
-	function (expressions) {
-		return elm$parser$Parser$oneOf(
-			_List_fromArray(
-				[
-					A2(
-					elm$parser$Parser$ignorer,
-					elm$parser$Parser$succeed(
-						elm$parser$Parser$Done(expressions)),
-					elm$parser$Parser$symbol('EOF')),
-					A2(
-					elm$parser$Parser$keeper,
-					elm$parser$Parser$succeed(
-						function (expr) {
-							return elm$parser$Parser$Loop(
-								_Utils_ap(
-									expressions,
-									_List_fromArray(
-										[expr])));
-						}),
-					A2(
-						elm$parser$Parser$ignorer,
-						A2(
-							elm$parser$Parser$ignorer,
-							A2(
-								elm$parser$Parser$ignorer,
-								author$project$MathParser$expression_(true),
-								elm$parser$Parser$chompWhile(
-									function (c) {
-										return _Utils_eq(
-											c,
-											_Utils_chr(' '));
-									})),
-							elm$parser$Parser$chompIf(
-								function (c) {
-									return _Utils_eq(
-										c,
-										_Utils_chr('\n'));
-								})),
-						elm$parser$Parser$spaces))
-				]));
-	});
+var author$project$MathParser$program = A2(elm$parser$Parser$loop, _List_Nil, author$project$MathParser$programLoop);
 var elm$parser$Parser$DeadEnd = F3(
 	function (row, col, problem) {
 		return {col: col, problem: problem, row: row};
@@ -9220,7 +9442,7 @@ var author$project$Playground$update = F2(
 											]),
 										state: author$project$Interpreter$newState
 									}));
-						default:
+						case 'Bitcoin':
 							return A2(
 								author$project$Playground$update,
 								author$project$Playground$Types$SelectCell(0),
@@ -9233,6 +9455,49 @@ var author$project$Playground$update = F2(
 												A2(author$project$Playground$newCell, 1, '1 - \\sum_{k = 0}^{z} \\frac{(\\lambda ^ k) * e ^ {-\\lambda}}{k!} * (1 - (q / p) ^ {(z - k)})')
 											]),
 										selectedCell: 0,
+										state: author$project$Interpreter$newState
+									}));
+						default:
+							return A2(
+								author$project$Playground$update,
+								author$project$Playground$Types$SelectCell(0),
+								_Utils_update(
+									model,
+									{
+										cells: _List_fromArray(
+											[
+												A2(author$project$Playground$newCell, 0, '\\mathbf{x} = (1, 3, 3, 6, 7, 8, 9)\nn = |\\mathbf{x}|'),
+												A2(author$project$Playground$newCell, 1, 'Mean:\n\\bar{x} = \\frac{\\sum{\\mathbf{x}}}{n}'),
+												A2(author$project$Playground$newCell, 2, 'Median:\n\\tilde{x} = x_{(n \\div 2 + 1)}'),
+												A2(author$project$Playground$newCell, 3, 'Quartiles\\ and\\ IQR:\n\\operatorname{Q1} = x_{(n \\div 4 + 1)}\n\\operatorname{Q3} = x_{(n - n \\div 4)}\n\\operatorname{IQR} = \\operatorname{Q3} - \\operatorname{Q1}'),
+												A2(author$project$Playground$newCell, 4, 'Outliers:\n\\operatorname{lower} = \\operatorname{Q1} - 1.5 * \\operatorname{IQR}\n\\operatorname{upper} = \\operatorname{Q3} + 1.5 * \\operatorname{IQR}\n(\\operatorname{lower}, \\operatorname{upper})'),
+												A2(author$project$Playground$newCell, 5, 'Variance:\nv = \\frac{\\sum_{i = 1}^{n} (x_{i} - \\bar{x}) ^ 2}{n - 1}'),
+												A2(author$project$Playground$newCell, 6, 'Standard\\ Deviation:\ns = \\sqrt{v}'),
+												A2(author$project$Playground$newCell, 7, 'Z-Score:\nz(\\mathbf{x})_{i} = \\frac{x_{i} - \\bar{x}}{s}\nz(\\mathbf{x})'),
+												A2(author$project$Playground$newCell, 8, 'Pearson\'s\\ R:\n\\mathbf{x} = (50, 100, 200, 300)\n\\bar{x} = 162.5\ns = 110.9\n\\mathbf{a} = z(\\mathbf{x})\n\n\\mathbf{y} = (50, 70, 70, 95)\n\\bar{x} = 71.3\ns = 18.4\n\\mathbf{b} = z(\\mathbf{y})\n\nn = |\\mathbf{x}|\nr = \\frac{\\sum_{i = 1}^{n} a_{i}*b_{i}}{n - 1}\n'),
+												A2(author$project$Playground$newCell, 9, 'Regression\\ Coefficient:\n\\operatorname{Sx} = 110.9\n\\operatorname{Sy} = 18.4\nb = r * (\\frac{\\operatorname{Sy}}{\\operatorname{Sx}})'),
+												A2(author$project$Playground$newCell, 10, 'Intercept:\n\\bar{x} = 162.5\n\\bar{y} = 71.3\na = \\bar{y} - b * \\bar{x}'),
+												A2(author$project$Playground$newCell, 11, 'Regression\\ Line:\ny(\\mathbf{x})_{i} = a + b * x_{i}\ny(\\mathbf{x})'),
+												A2(author$project$Playground$newCell, 12, 'Coefficient\\ of\\ Determination:\nr ^ 2'),
+												A2(author$project$Playground$newCell, 13, 'Probability\\ Mass\\ Function:\n\\mathbf{x} = (1, 2, 3, 4, 5, 6)\n\\mathbf{f} = (10, 20, 40, 80, 40, 20)\np(\\mathbf{x})_{i} = \\frac{f_{i}}{\\sum{\\mathbf{f}}}\np(\\mathbf{x})'),
+												A2(author$project$Playground$newCell, 14, 'Expected\\ Value:\nn = |\\mathbf{x}|\n\\operatorname{E}(\\mathbf{x}) = \\sum_{i = 1}^{n} x_{i} * p(\\mathbf{x})_{i}\n\\mu = \\operatorname{E}(\\mathbf{x})'),
+												A2(author$project$Playground$newCell, 15, 'Variance\\ of\\ a\\ Random\\ Value:\ng(\\mathbf{x})_{i} = (x_{i} - \\mu) ^ 2\nv = \\operatorname{E}(g(\\mathbf{x}))\n\\sigma = \\sqrt{v}'),
+												A2(author$project$Playground$newCell, 16, 'Normal\\ Distribution:\nf(x) = \\frac{1}{\\sigma * \\sqrt{2 * \\pi}} * e ^ {-0.5 * (\\frac{x - \\mu}{\\sigma}) ^ 2}\nf(4)'),
+												A2(author$project$Playground$newCell, 17, 'Standard\\ Normal\\ Distribution:\nx = \\mu + z * \\sigma'),
+												A2(author$project$Playground$newCell, 18, 'Binomial\\ Distribution:\nn = 4\np = 0.48\n\\operatorname{P}(x) = \\frac{n!}{x! * (n-x)!} * p ^ x * (1 - p) ^ {n - x}\n\\operatorname{P}(3)'),
+												A2(author$project$Playground$newCell, 19, 'Cumulative\\ Binomial:\n\\operatorname{F}(x) = \\sum_{k = 0}^{x} \\frac{n!}{k! * (n-k)!} * p ^ k * (1 - p) ^ {n - k}\n\\operatorname{F}(3)'),
+												A2(author$project$Playground$newCell, 20, 'Binomial\\ Mean:\n\\mu = n * p'),
+												A2(author$project$Playground$newCell, 21, 'Binomial\\ Standard\\ Deviation:\n\\sigma = \\sqrt{n * p * (1 - p)}'),
+												A2(author$project$Playground$newCell, 22, 'Sampling\\ Distribution\\ of\\ the\\ Sample\\ Mean:\n\\mu = 3.85\n\\sigma = 1.25\nn = 6\n\\bar{\\mu} = \\mu\n\\bar{\\sigma} = \\frac{\\sigma}{\\sqrt{n}}'),
+												A2(author$project$Playground$newCell, 23, 'Sampling\\ Proportion\\ Standard\\ Deviation:\n\\pi = 0.2\nn = 400\n\\bar{\\sigma} = \\sqrt{\\frac{\\pi * (1 - \\pi)}{n}}'),
+												A2(author$project$Playground$newCell, 24, 'Confidence\\ Interval\\ with\\ Population\\ Standard\\ Deviation:\n\\sigma = 0.8\n\\bar{x} = 3.8\nn = 150\nz = 1.96\n\\operatorname{SE} = \\frac{\\sigma}{\\sqrt{n}}\n\\operatorname{CI} = z * \\operatorname{SE}\n(\\bar{x} - \\operatorname{CI}, \\bar{x} + \\operatorname{CI})'),
+												A2(author$project$Playground$newCell, 25, 'Confidence\\ Interval\\ without\\ Population\\ Standard\\ Deviation:\ns = 0.7\nt = 1.96\n\\operatorname{SE} = \\frac{s}{\\sqrt{n}}\n\\operatorname{CI} = t * \\operatorname{SE}\n(\\bar{x} - \\operatorname{CI}, \\bar{x} + \\operatorname{CI})\n                            '),
+												A2(author$project$Playground$newCell, 26, 'Confidence\\ Interval\\ for\\ Proportion\\ without\\ Population\\ Standard\\ Deviation:\nn = 55\np = 0.77\nz = 2.58\n\\operatorname{SE} = \\sqrt{\\frac{p * (1 - p)}{n}}\n\\operatorname{CI} = z * \\operatorname{SE}\n(p - \\operatorname{CI}, p + \\operatorname{CI})'),
+												A2(author$project$Playground$newCell, 27, 'Selecting\\ a\\ Sample\\ Size:\n\\sigma = 1.25\nz = 1.96\nm = 0.3\nn = \\frac{\\sigma ^ 2 * z ^ 2}{m ^ 2}'),
+												A2(author$project$Playground$newCell, 28, 'Selecting\\ a\\ Sample\\ Size\\ for\\ Proportion:\np = 0.5\nz = 1.645\nm = 0.1\nn = \\frac{p * (1 - p) * z ^ 2}{m ^ 2}'),
+												A2(author$project$Playground$newCell, 29, 'Hypothesis\\ Testing:\n\\operatorname{null} = 68\nn = 40\n\\bar{x} = 64\ns = 3\n\\alpha = 0.05\n\\operatorname{SE} = \\frac{s}{\\sqrt{n}}\nt = \\frac{\\bar{x} - \\operatorname{null}}{\\operatorname{SE}}\n\\operatorname{df} = n - 1\n\\operatorname{t95} = 2.042\n(t, -\\operatorname{t95}, \\operatorname{t95})'),
+												A2(author$project$Playground$newCell, 30, 'Hypothesis\\ Testing\\ for\\ Proportion:\n\\operatorname{null} = 0.86\nn = 900\np = 0.84\n\\alpha = 0.05\n\\operatorname{SE} = \\sqrt{\\frac{\\operatorname{null} * (1 - \\operatorname{null})}{n}}\nz = \\frac{p - \\operatorname{null}}{\\operatorname{SE}}\n\\operatorname{z95} = 1.96\n(-\\operatorname{z95}, z, \\operatorname{z95})')
+											]),
 										state: author$project$Interpreter$newState
 									}));
 					}
@@ -9379,6 +9644,7 @@ var author$project$Playground$Types$SetExample = function (a) {
 	return {$: 'SetExample', a: a};
 };
 var author$project$Playground$Types$Softmax = {$: 'Softmax'};
+var author$project$Playground$Types$Statistics = {$: 'Statistics'};
 var elm$html$Html$a = _VirtualDom_node('a');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$h2 = _VirtualDom_node('h2');
@@ -9549,6 +9815,18 @@ var author$project$Playground$Components$header = function () {
 										_List_fromArray(
 											[
 												elm$html$Html$text('Bitcoin Paper Attack Chance')
+											])),
+										A2(
+										submenuItem,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$href('#'),
+												elm$html$Html$Events$onClick(
+												author$project$Playground$Types$SetExample(author$project$Playground$Types$Statistics))
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text('Basic Statistics')
 											]))
 									]))
 							])),
@@ -9759,8 +10037,12 @@ var author$project$Encoder$encode = function (expr) {
 					return '\\sqrt{' + (author$project$Encoder$encode(e1) + '}');
 				case 'Factorial':
 					return author$project$Encoder$encode(e1) + '!';
-				default:
+				case 'Negation':
 					return '-' + author$project$Encoder$encode(e1);
+				case 'Summation':
+					return '\\sum{' + (author$project$Encoder$encode(e1) + '}');
+				default:
+					return '|' + (author$project$Encoder$encode(e1) + '|');
 			}
 		});
 	var encodeDoubleOp = F3(
@@ -9789,8 +10071,12 @@ var author$project$Encoder$encode = function (expr) {
 					}
 				case 'Frac':
 					return '\\frac{' + (author$project$Encoder$encode(e1) + ('}{' + (author$project$Encoder$encode(e2) + '}')));
-				default:
+				case 'Index':
 					return author$project$Encoder$encode(e1) + ('_{' + (author$project$Encoder$encode(e2) + '}'));
+				case 'Modulo':
+					return author$project$Encoder$encode(e1) + (' \\mod ' + author$project$Encoder$encode(e2));
+				default:
+					return author$project$Encoder$encode(e1) + (' \\div ' + author$project$Encoder$encode(e2));
 			}
 		});
 	switch (expr.$) {
@@ -9826,11 +10112,18 @@ var author$project$Encoder$encode = function (expr) {
 			var id = expr.a;
 			var e = expr.b;
 			return '(' + (encodeIdentifier(id) + (') = ' + author$project$Encoder$encode(e)));
-		default:
+		case 'MapAbstraction':
 			var _var = expr.a;
 			var index = expr.b;
 			var e = expr.c;
 			return '(\\mathbf{' + (_var + ('})_{' + (index + ('} = ' + author$project$Encoder$encode(e)))));
+		default:
+			var name = expr.a;
+			var items = expr.b;
+			return name + (':' + ('\n' + A2(
+				elm$core$String$join,
+				'\n',
+				A2(elm$core$List$map, author$project$Encoder$encode, items))));
 	}
 };
 var author$project$Playground$Style$monospace = A2(elm$html$Html$Attributes$style, 'font-family', 'monospace, sans-serif');
